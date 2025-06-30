@@ -1,0 +1,117 @@
+.results-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.results-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+  animation: modalAppear 0.5s ease-out;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.results-modal h2 {
+  color: #ff6b6b;
+  font-size: 2.2em;
+  margin-bottom: 30px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.results-content {
+  margin-bottom: 30px;
+}
+
+.total-time,
+.average-time {
+  margin: 25px 0;
+}
+
+.total-time h3,
+.average-time h3,
+.order-breakdown h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.3em;
+}
+
+.time-display {
+  font-size: 2em;
+  font-weight: bold;
+  color: #2ecc71;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 15px;
+  display: inline-block;
+  min-width: 120px;
+  border: 3px solid #2ecc71;
+}
+
+.order-breakdown {
+  margin: 25px 0;
+  text-align: left;
+}
+
+.order-breakdown h3 {
+  text-align: center;
+}
+
+.order-breakdown ul {
+  list-style: none;
+  padding: 0;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.order-breakdown li {
+  padding: 8px 0;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 1.1em;
+  display: flex;
+  justify-content: space-between;
+}
+
+.order-breakdown li:last-child {
+  border-bottom: none;
+}
+
+.restart-button {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.2em;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.restart-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
