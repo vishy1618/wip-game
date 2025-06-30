@@ -15,7 +15,7 @@ const GameplayOverview = () => {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/game-results`, {
+      const response = await fetch('/game-results', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
