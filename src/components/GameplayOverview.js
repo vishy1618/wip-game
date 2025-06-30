@@ -9,6 +9,12 @@ const GameplayOverview = () => {
 
   useEffect(() => {
     fetchGameStats();
+    
+    // Poll every 5 seconds to refresh data
+    const interval = setInterval(fetchGameStats, 5000);
+    
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
   }, []);
 
   const fetchGameStats = async () => {
