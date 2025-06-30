@@ -8,18 +8,20 @@ const GameplayOverview = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchGameStats();
+    fetchGameStats(true); // Show loading on initial load
     
-    // Poll every 5 seconds to refresh data
-    const interval = setInterval(fetchGameStats, 5000);
+    // Poll every 5 seconds to refresh data (without loading)
+    const interval = setInterval(() => fetchGameStats(false), 5000);
     
     // Cleanup interval on component unmount
     return () => clearInterval(interval);
   }, []);
 
-  const fetchGameStats = async () => {
+  const fetchGameStats = async (showLoading = false) => {
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoading(true);
+      }
       setError(null);
       
       const response = await fetch('/game-results', {
@@ -83,7 +85,7 @@ const GameplayOverview = () => {
       <div className="gameplay-overview">
         <div className="error">
           Error loading statistics: {error}
-          <button onClick={fetchGameStats} className="retry-button">
+          <button onClick={() => fetchGameStats(true)} className="retry-button">
             Retry
           </button>
         </div>
