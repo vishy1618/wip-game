@@ -53,8 +53,8 @@ function App() {
     if (orderCount === 0) {
       spawnOrder();
     } else {
-      // Random delay between 10-20 seconds for subsequent orders
-      const delay = Math.random() * 10000 + 10000;
+      // Random delay between 5-10 seconds for subsequent orders
+      const delay = Math.random() * 5000 + 5000;
       const timeout = setTimeout(spawnOrder, delay);
       return () => clearTimeout(timeout);
     }

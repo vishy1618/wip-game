@@ -31,7 +31,13 @@ const PizzaOrder = ({ order, availableIngredients, onAddIngredient }) => {
 
   const handleAddIngredient = () => {
     if (selectedIngredient && !isDisabled) {
-      onAddIngredient(order.id, selectedIngredient);
+      // Only allow adding ingredients that are required and not already added
+      if (order.requiredIngredients.includes(selectedIngredient) && 
+          !order.addedIngredients.includes(selectedIngredient)) {
+        onAddIngredient(order.id, selectedIngredient);
+      }
+      // Reset selection regardless of whether it was valid
+      setSelectedIngredient('');
     }
   };
 
@@ -91,14 +97,11 @@ const PizzaOrder = ({ order, availableIngredients, onAddIngredient }) => {
             disabled={isDisabled || order.isCompleted}
           >
             <option value="">Select ingredient...</option>
-            {availableIngredients
-              .filter(ingredient => order.requiredIngredients.includes(ingredient))
-              .filter(ingredient => !order.addedIngredients.includes(ingredient))
-              .map(ingredient => (
-                <option key={ingredient} value={ingredient}>
-                  {ingredient}
-                </option>
-              ))}
+            {availableIngredients.map(ingredient => (
+              <option key={ingredient} value={ingredient}>
+                {ingredient}
+              </option>
+            ))}
           </select>
           <button
             onClick={handleAddIngredient}
