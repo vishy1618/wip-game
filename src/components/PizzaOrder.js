@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './PizzaOrder.css';
 
-const PizzaOrder = ({ order, availableIngredients, onAddIngredient, isDisabled }) => {
+const PizzaOrder = ({ order, availableIngredients, onAddIngredient, isDisabled, gameMode = 'multitask' }) => {
   const [selectedIngredient, setSelectedIngredient] = useState('');
   const [elapsedTime, setElapsedTime] = useState(0);
 
@@ -108,7 +108,10 @@ const PizzaOrder = ({ order, availableIngredients, onAddIngredient, isDisabled }
 
         {isDisabled && !order.isCompleted && (
           <div className="disabled-message">
-            Controls disabled. Add an ingredient to another order to continue!
+            {gameMode === 'singletask' 
+              ? 'Waiting in queue. Complete the current order first!'
+              : 'Controls disabled. Add an ingredient to another order to continue!'
+            }
           </div>
         )}
       </div>
