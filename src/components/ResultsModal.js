@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import './ResultsModal.css';
 
 const ResultsModal = ({ completedOrders, onRestart, gameType }) => {
   const [apiStatus, setApiStatus] = useState({ loading: false, success: null, error: null });
-  const calculateResults = () => {
+  const [hasCalledApi, setHasCalledApi] = useState(false);
+  const results = useMemo(() => {
     if (completedOrders.length === 0) return null;
 
     const totalTime = Math.max(...completedOrders.map(order => order.completionTime)) - 
@@ -24,9 +25,7 @@ const ResultsModal = ({ completedOrders, onRestart, gameType }) => {
       })),
       averageTime: Math.round(averageTime / 1000)
     };
-  };
-
-  const results = calculateResults();
+  }, [completedOrders]);
 
   const saveGameResults = async (totalTime, averageTime, gameType) => {
     setApiStatus({ loading: true, success: null, error: null });
@@ -60,10 +59,11 @@ const ResultsModal = ({ completedOrders, onRestart, gameType }) => {
   };
 
   useEffect(() => {
-    if (results && gameType) {
+    if (results && gameType && !hasCalledApi) {
+      setHasCalledApi(true);
       saveGameResults(results.totalTime, results.averageTime, gameType);
     }
-  }, [results, gameType]);
+  }, [results, gameType, hasCalledApi]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
