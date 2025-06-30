@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './GameplayOverview.css';
 
 const GameplayOverview = () => {
@@ -97,6 +98,7 @@ const GameplayOverview = () => {
 
   return (
     <div className="gameplay-overview">
+      <Link to="/" className="home-link">← Back to Home</Link>
       <h1>Gameplay Overview</h1>
       
       <div className="total-games">
