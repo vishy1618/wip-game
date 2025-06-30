@@ -176,6 +176,7 @@ function MultiTaskGame() {
             arr.findIndex(o => o.id === order.id) === index
           )}
           onRestart={resetGame}
+          gameType="multitask"
         />
       )}
       

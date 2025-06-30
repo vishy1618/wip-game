@@ -115,3 +115,18 @@
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(0,0,0,0.3);
 }
+
+.api-status {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  border-left: 4px solid #6c757d;
+  text-align: center;
+}
+
+.api-status p {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}

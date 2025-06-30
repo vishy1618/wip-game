@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './ResultsModal.css';
 
-const ResultsModal = ({ completedOrders, onRestart }) => {
+const ResultsModal = ({ completedOrders, onRestart, gameType }) => {
+  const [apiStatus, setApiStatus] = useState({ loading: false, success: null, error: null });
   const calculateResults = () => {
     if (completedOrders.length === 0) return null;
 
@@ -26,6 +27,43 @@ const ResultsModal = ({ completedOrders, onRestart }) => {
   };
 
   const results = calculateResults();
+
+  const saveGameResults = async (totalTime, averageTime, gameType) => {
+    setApiStatus({ loading: true, success: null, error: null });
+    
+    try {
+      const response = await fetch('/game-results', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          totalTime,
+          averageTime,
+          gameType
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setApiStatus({ loading: false, success: true, error: null });
+        console.log('Game results saved:', result.documentId);
+      } else {
+        setApiStatus({ loading: false, success: false, error: result.error });
+        console.error('Error saving results:', result.error);
+      }
+    } catch (error) {
+      setApiStatus({ loading: false, success: false, error: error.message });
+      console.error('Network error:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (results && gameType) {
+      saveGameResults(results.totalTime, results.averageTime, gameType);
+    }
+  }, [results, gameType]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -60,6 +98,12 @@ const ResultsModal = ({ completedOrders, onRestart }) => {
           <div className="average-time">
             <h3>Average Time per Pizza</h3>
             <div className="time-display">{formatTime(results.averageTime)}</div>
+          </div>
+          
+          <div className="api-status">
+            {apiStatus.loading && <p>💾 Saving results...</p>}
+            {apiStatus.success && <p>✅ Results saved successfully!</p>}
+            {apiStatus.error && <p>⚠️ Failed to save: {apiStatus.error}</p>}
           </div>
         </div>
 

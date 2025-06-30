@@ -174,6 +174,7 @@ function SingleTaskGame() {
             arr.findIndex(o => o.id === order.id) === index
           )}
           onRestart={resetGame}
+          gameType="singletask"
         />
       )}
       
