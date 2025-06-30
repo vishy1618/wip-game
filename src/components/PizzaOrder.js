@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './PizzaOrder.css';
 
-const PizzaOrder = ({ order, availableIngredients, onAddIngredient }) => {
+const PizzaOrder = ({ order, availableIngredients, onAddIngredient, isDisabled }) => {
   const [selectedIngredient, setSelectedIngredient] = useState('');
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [isDisabled, setIsDisabled] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -15,15 +14,10 @@ const PizzaOrder = ({ order, availableIngredients, onAddIngredient }) => {
   }, [order.startTime]);
 
   useEffect(() => {
-    if (order.addedIngredients.length > 0) {
-      setIsDisabled(true);
-      const timeout = setTimeout(() => {
-        setIsDisabled(false);
-        setSelectedIngredient('');
-      }, 2000); // Re-enable after 2 seconds
-      return () => clearTimeout(timeout);
+    if (isDisabled) {
+      setSelectedIngredient('');
     }
-  }, [order.addedIngredients.length]);
+  }, [isDisabled]);
 
   const completionPercentage = Math.round(
     (order.addedIngredients.length / order.requiredIngredients.length) * 100
@@ -114,7 +108,7 @@ const PizzaOrder = ({ order, availableIngredients, onAddIngredient }) => {
 
         {isDisabled && !order.isCompleted && (
           <div className="disabled-message">
-            Controls disabled for 2 seconds. Work on other orders!
+            Controls disabled. Add an ingredient to another order to continue!
           </div>
         )}
       </div>

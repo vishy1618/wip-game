@@ -37,6 +37,7 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [orderCount, setOrderCount] = useState(0);
+  const [lastInteractedOrderId, setLastInteractedOrderId] = useState(null);
 
   useEffect(() => {
     if (!gameStarted || gameCompleted || orderCount >= 5) return;
@@ -61,36 +62,57 @@ function App() {
   }, [gameStarted, gameCompleted, orderCount]);
 
   useEffect(() => {
-    if (completedOrders.length === 5) {
+    console.log('Completed orders changed:', completedOrders.length, completedOrders.map(o => o.id));
+    // Get unique completed order IDs
+    const uniqueCompletedIds = [...new Set(completedOrders.map(o => o.id))];
+    console.log('Unique completed IDs:', uniqueCompletedIds);
+    
+    if (uniqueCompletedIds.length === 5) {
+      console.log('Setting game completed!');
       setGameCompleted(true);
     }
   }, [completedOrders]);
 
   const handleAddIngredient = (orderId, ingredient) => {
-    setOrders(prev => prev.map(order => {
-      if (order.id === orderId) {
-        const newAddedIngredients = [...order.addedIngredients, ingredient];
-        const isCompleted = newAddedIngredients.length === order.requiredIngredients.length;
-        
-        if (isCompleted) {
-          const completedOrder = {
-            ...order,
-            addedIngredients: newAddedIngredients,
-            isCompleted: true,
-            completionTime: Date.now()
-          };
+    // Set the last interacted order (this will disable its controls)
+    setLastInteractedOrderId(orderId);
+    
+    setOrders(prev => {
+      const newOrders = prev.map(order => {
+        if (order.id === orderId) {
+          const newAddedIngredients = [...order.addedIngredients, ingredient];
+          const isCompleted = newAddedIngredients.length === order.requiredIngredients.length;
           
-          setCompletedOrders(prev => [...prev, completedOrder]);
-          return completedOrder;
+          if (isCompleted && !order.isCompleted) {
+            const completedOrder = {
+              ...order,
+              addedIngredients: newAddedIngredients,
+              isCompleted: true,
+              completionTime: Date.now()
+            };
+            
+            // Only add to completedOrders if not already completed
+            setCompletedOrders(prev => {
+              // Check if this order is already in completedOrders
+              if (prev.find(o => o.id === completedOrder.id)) {
+                console.log('Order', completedOrder.id, 'already completed, not adding again');
+                return prev;
+              }
+              console.log('Adding completed order', completedOrder.id);
+              return [...prev, completedOrder];
+            });
+            return completedOrder;
+          }
+          
+          return {
+            ...order,
+            addedIngredients: newAddedIngredients
+          };
         }
-        
-        return {
-          ...order,
-          addedIngredients: newAddedIngredients
-        };
-      }
-      return order;
-    }));
+        return order;
+      });
+      return newOrders;
+    });
   };
 
   const startGame = () => {
@@ -99,6 +121,7 @@ function App() {
     setCompletedOrders([]);
     setOrderCount(0);
     setGameCompleted(false);
+    setLastInteractedOrderId(null);
   };
 
   const resetGame = () => {
@@ -107,6 +130,7 @@ function App() {
     setOrders([]);
     setCompletedOrders([]);
     setOrderCount(0);
+    setLastInteractedOrderId(null);
   };
 
   return (
@@ -123,24 +147,39 @@ function App() {
       <main className="game-area">
         {gameStarted && !gameCompleted && (
           <div className="orders-container">
-            {orders.filter(order => !order.isCompleted).map(order => (
-              <PizzaOrder
-                key={order.id}
-                order={order}
-                availableIngredients={INGREDIENTS}
-                onAddIngredient={handleAddIngredient}
-              />
-            ))}
+            {orders.filter(order => !order.isCompleted).map(order => {
+              const activeOrders = orders.filter(o => !o.isCompleted);
+              const isDisabled = activeOrders.length > 1 && lastInteractedOrderId === order.id;
+              
+              return (
+                <PizzaOrder
+                  key={order.id}
+                  order={order}
+                  availableIngredients={INGREDIENTS}
+                  onAddIngredient={handleAddIngredient}
+                  isDisabled={isDisabled}
+                />
+              );
+            })}
           </div>
         )}
       </main>
 
       {gameCompleted && (
         <ResultsModal
-          completedOrders={completedOrders}
+          completedOrders={completedOrders.filter((order, index, arr) => 
+            arr.findIndex(o => o.id === order.id) === index
+          )}
           onRestart={resetGame}
         />
       )}
+      
+      {/* Temporary debug */}
+      <div style={{position: 'fixed', bottom: '10px', left: '10px', background: 'rgba(0,0,0,0.8)', color: 'white', padding: '10px', fontSize: '12px', borderRadius: '5px'}}>
+        Completed: {completedOrders.length} | Game Complete: {gameCompleted.toString()}
+      </div>
+      
+
     </div>
   );
 }
