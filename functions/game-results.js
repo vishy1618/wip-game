@@ -25,7 +25,7 @@ export default async function handler(request, response) {
   // Set CORS headers
   response.setHeader('Access-Control-Allow-Origin', '*');
   response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  response.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 
   // Handle CORS preflight requests
   if (request.method === 'OPTIONS') {
@@ -33,10 +33,90 @@ export default async function handler(request, response) {
     return;
   }
 
-  // Only allow POST requests
+  if (request.method === 'GET') {
+    try {
+      // Fetch all game runs
+      const snapshot = await db.collection('gameruns').get();
+      
+      if (snapshot.empty) {
+        response.status(200).json({
+          multitask: { count: 0, avgTotalTime: 0, avgAverageTime: 0 },
+          singletask: { count: 0, avgTotalTime: 0, avgAverageTime: 0 },
+          comparison: { totalTimePercentage: 0, averageTimePercentage: 0 }
+        });
+        return;
+      }
+
+      // Separate data by game type
+      const multitaskRuns = [];
+      const singletaskRuns = [];
+
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        if (data.gameType === 'multitask') {
+          multitaskRuns.push(data);
+        } else if (data.gameType === 'singletask') {
+          singletaskRuns.push(data);
+        }
+      });
+
+      // Calculate averages for multitask
+      const multitaskStats = {
+        count: multitaskRuns.length,
+        avgTotalTime: multitaskRuns.length > 0 
+          ? multitaskRuns.reduce((sum, run) => sum + run.totalTime, 0) / multitaskRuns.length 
+          : 0,
+        avgAverageTime: multitaskRuns.length > 0 
+          ? multitaskRuns.reduce((sum, run) => sum + run.averageTime, 0) / multitaskRuns.length 
+          : 0
+      };
+
+      // Calculate averages for singletask
+      const singletaskStats = {
+        count: singletaskRuns.length,
+        avgTotalTime: singletaskRuns.length > 0 
+          ? singletaskRuns.reduce((sum, run) => sum + run.totalTime, 0) / singletaskRuns.length 
+          : 0,
+        avgAverageTime: singletaskRuns.length > 0 
+          ? singletaskRuns.reduce((sum, run) => sum + run.averageTime, 0) / singletaskRuns.length 
+          : 0
+      };
+
+      // Calculate comparison percentages (positive means multitask is faster)
+      let totalTimePercentage = 0;
+      let averageTimePercentage = 0;
+
+      if (multitaskStats.avgTotalTime > 0 && singletaskStats.avgTotalTime > 0) {
+        totalTimePercentage = ((singletaskStats.avgTotalTime - multitaskStats.avgTotalTime) / singletaskStats.avgTotalTime) * 100;
+      }
+
+      if (multitaskStats.avgAverageTime > 0 && singletaskStats.avgAverageTime > 0) {
+        averageTimePercentage = ((singletaskStats.avgAverageTime - multitaskStats.avgAverageTime) / singletaskStats.avgAverageTime) * 100;
+      }
+
+      response.status(200).json({
+        multitask: multitaskStats,
+        singletask: singletaskStats,
+        comparison: {
+          totalTimePercentage: Math.round(totalTimePercentage * 100) / 100,
+          averageTimePercentage: Math.round(averageTimePercentage * 100) / 100
+        }
+      });
+
+    } catch (error) {
+      console.error('Error fetching game statistics:', error);
+      response.status(500).json({
+        error: 'Internal server error',
+        message: error.message
+      });
+    }
+    return;
+  }
+
+  // Only allow POST requests for saving data
   if (request.method !== 'POST') {
     response.status(405).json({ 
-      error: 'Method not allowed. Use POST.' 
+      error: 'Method not allowed. Use GET or POST.' 
     });
     return;
   }

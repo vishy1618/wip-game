@@ -36,16 +36,16 @@ const Home = () => {
             </Link>
           </div>
           
-          <div className="game-card coming-soon">
-            <div className="game-icon">🔮</div>
-            <h2>More Games Coming Soon</h2>
+          <div className="game-card">
+            <div className="game-icon">📊</div>
+            <h2>Gameplay Overview</h2>
             <p>
-              We're working on more exciting games to test your skills and reflexes.
-              Stay tuned for updates!
+              View detailed statistics and performance comparisons between multitask and singletask modes.
+              See which game type you perform better at!
             </p>
-            <button className="play-button disabled" disabled>
-              Coming Soon
-            </button>
+            <Link to="/overview" className="play-button">
+              View Stats
+            </Link>
           </div>
         </div>
       </main>
