@@ -37,6 +37,18 @@ const Home = () => {
           </div>
           
           <div className="game-card">
+            <div className="game-icon">🚧</div>
+            <h2>Pizza WIP Game</h2>
+            <p>
+              Work-in-progress mode with no constraints! Add ingredients to any order at any time.
+              Complete freedom to manage your pizza orders however you want!
+            </p>
+            <Link to="/wip" className="play-button">
+              Play Now
+            </Link>
+          </div>
+          
+          <div className="game-card">
             <div className="game-icon">📊</div>
             <h2>Gameplay Overview</h2>
             <p>
