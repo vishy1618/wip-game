@@ -108,36 +108,9 @@ function WIPGame() {
     setOrders(prev => {
       const newOrders = prev.map(order => {
         if (order.id === selectedOrderId) {
-          const newAddedIngredients = [...order.addedIngredients, ingredient];
-          const isCompleted = newAddedIngredients.length === order.requiredIngredients.length;
-          
-          if (isCompleted && !order.isCompleted) {
-            const completedOrder = {
-              ...order,
-              addedIngredients: newAddedIngredients,
-              isCompleted: true,
-              completionTime: Date.now()
-            };
-            
-            // Only add to completedOrders if not already completed
-            setCompletedOrders(prev => {
-              // Check if this order is already in completedOrders
-              if (prev.find(o => o.id === completedOrder.id)) {
-                console.log('Order', completedOrder.id, 'already completed, not adding again');
-                return prev;
-              }
-              console.log('Adding completed order', completedOrder.id);
-              return [...prev, completedOrder];
-            });
-            
-            // Clear selection when order is completed
-            setSelectedOrderId(null);
-            return completedOrder;
-          }
-          
           return {
             ...order,
-            addedIngredients: newAddedIngredients
+            addedIngredients: [...order.addedIngredients, ingredient]
           };
         }
         return order;
@@ -174,6 +147,56 @@ function WIPGame() {
 
   const getSelectedOrder = () => {
     return orders.find(order => order.id === selectedOrderId && !order.isCompleted);
+  };
+
+  const handleCompleteOrder = () => {
+    if (!selectedOrderId) return;
+    
+    const selectedOrder = getSelectedOrder();
+    if (!selectedOrder) return;
+    
+    // Check if all ingredients have been added
+    if (selectedOrder.addedIngredients.length !== selectedOrder.requiredIngredients.length) {
+      setErrorMessage('Please add all required ingredients before completing the order!');
+      setTimeout(() => setErrorMessage(''), 3000);
+      return;
+    }
+    
+    setOrders(prev => {
+      const newOrders = prev.map(order => {
+        if (order.id === selectedOrderId) {
+          const completedOrder = {
+            ...order,
+            isCompleted: true,
+            completionTime: Date.now()
+          };
+          
+          // Add to completedOrders
+          setCompletedOrders(prev => {
+            // Check if this order is already in completedOrders
+            if (prev.find(o => o.id === completedOrder.id)) {
+              console.log('Order', completedOrder.id, 'already completed, not adding again');
+              return prev;
+            }
+            console.log('Adding completed order', completedOrder.id);
+            return [...prev, completedOrder];
+          });
+          
+          return completedOrder;
+        }
+        return order;
+      });
+      return newOrders;
+    });
+    
+    // Clear selection when order is completed
+    setSelectedOrderId(null);
+  };
+
+  const isOrderReadyToComplete = () => {
+    const selectedOrder = getSelectedOrder();
+    if (!selectedOrder) return false;
+    return selectedOrder.addedIngredients.length === selectedOrder.requiredIngredients.length;
   };
 
   return (
@@ -246,6 +269,13 @@ function WIPGame() {
                     </li>
                   ))}
                 </ul>
+                <button
+                  className={`wip-complete-button ${isOrderReadyToComplete() ? 'enabled' : 'disabled'}`}
+                  onClick={handleCompleteOrder}
+                  disabled={!isOrderReadyToComplete()}
+                >
+                  Order Complete
+                </button>
               </div>
             )}
             <div className={`wip-tabletop ${!getSelectedOrder() ? 'empty' : ''}`}>

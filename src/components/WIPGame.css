@@ -223,6 +223,43 @@
   color: #28a745;
 }
 
+.wip-complete-button {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.wip-complete-button.enabled {
+  background-color: #28a745;
+  color: white;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.wip-complete-button.enabled:hover {
+  background-color: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+}
+
+.wip-complete-button.disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.wip-complete-button.disabled:hover {
+  background-color: #e9ecef;
+  transform: none;
+  box-shadow: none;
+}
+
 .wip-empty-message {
   color: #6c757d;
   font-size: 1.2rem;
