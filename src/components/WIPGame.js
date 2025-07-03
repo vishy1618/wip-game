@@ -214,23 +214,25 @@ function WIPGame() {
 
           {/* Center Area - Pizza Display */}
           <div className="wip-pizza-area">
+            {getSelectedOrder() && (
+              <div className="wip-order-note">
+                <h4>Order #{getSelectedOrder().id}</h4>
+                <ul>
+                  {getSelectedOrder().requiredIngredients.map((ingredient, index) => (
+                    <li
+                      key={index}
+                      className={getSelectedOrder().addedIngredients.includes(ingredient) ? 'completed' : ''}
+                    >
+                      {ingredient}
+                      {getSelectedOrder().addedIngredients.includes(ingredient) && ' ✓'}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className={`wip-tabletop ${!getSelectedOrder() ? 'empty' : ''}`}>
               {getSelectedOrder() ? (
                 <div className="wip-pizza-display">
-                  <div className="wip-order-note">
-                    <h4>Order #{getSelectedOrder().id}</h4>
-                    <ul>
-                      {getSelectedOrder().requiredIngredients.map((ingredient, index) => (
-                        <li
-                          key={index}
-                          className={getSelectedOrder().addedIngredients.includes(ingredient) ? 'completed' : ''}
-                        >
-                          {ingredient}
-                          {getSelectedOrder().addedIngredients.includes(ingredient) && ' ✓'}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
                   <div className="wip-pizza-base">
                     {getSelectedOrder().addedIngredients.map((ingredient, index) => (
                       <div
