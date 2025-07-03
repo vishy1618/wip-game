@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import PizzaOrder from './PizzaOrder';
 import ResultsModal from './ResultsModal';
-import './SingleTaskGame.css'; // Reusing the same CSS
+import './WIPGame.css';
 
 const INGREDIENTS = [
   'Mozzarella cheese',
@@ -38,6 +37,7 @@ function WIPGame() {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [orderCount, setOrderCount] = useState(0);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   useEffect(() => {
     if (!gameStarted || gameCompleted || orderCount >= 5) return;
@@ -73,10 +73,18 @@ function WIPGame() {
     }
   }, [completedOrders]);
 
-  const handleAddIngredient = (orderId, ingredient) => {
+  const handleAddIngredient = (ingredient) => {
+    if (!selectedOrderId) return;
+    
     setOrders(prev => {
       const newOrders = prev.map(order => {
-        if (order.id === orderId) {
+        if (order.id === selectedOrderId) {
+          // Only allow adding ingredients that are required and not already added
+          if (!order.requiredIngredients.includes(ingredient) || 
+              order.addedIngredients.includes(ingredient)) {
+            return order;
+          }
+          
           const newAddedIngredients = [...order.addedIngredients, ingredient];
           const isCompleted = newAddedIngredients.length === order.requiredIngredients.length;
           
@@ -98,6 +106,9 @@ function WIPGame() {
               console.log('Adding completed order', completedOrder.id);
               return [...prev, completedOrder];
             });
+            
+            // Clear selection when order is completed
+            setSelectedOrderId(null);
             return completedOrder;
           }
           
@@ -118,6 +129,7 @@ function WIPGame() {
     setCompletedOrders([]);
     setOrderCount(0);
     setGameCompleted(false);
+    setSelectedOrderId(null);
   };
 
   const resetGame = () => {
@@ -126,45 +138,138 @@ function WIPGame() {
     setOrders([]);
     setCompletedOrders([]);
     setOrderCount(0);
+    setSelectedOrderId(null);
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const getSelectedOrder = () => {
+    return orders.find(order => order.id === selectedOrderId && !order.isCompleted);
+  };
+
+  const canAddIngredient = (ingredient) => {
+    const selectedOrder = getSelectedOrder();
+    if (!selectedOrder) return false;
+    return selectedOrder.requiredIngredients.includes(ingredient) && 
+           !selectedOrder.addedIngredients.includes(ingredient);
   };
 
   return (
-    <div className="singletask-game">
-      <nav className="game-nav">
-        <Link to="/" className="home-link">← Back to Home</Link>
+    <div className="wip-game">
+      <nav className="wip-game-nav">
+        <Link to="/" className="wip-home-link">← Back to Home</Link>
       </nav>
       
-      <header className="game-header">
+      <header className="wip-game-header">
         <h1>Pizza WIP Game</h1>
-        <p className="game-description">Work on any order at any time - no constraints or limitations!</p>
+        <p className="wip-game-description">Work on any order at any time - no constraints or limitations!</p>
         {!gameStarted && !gameCompleted && (
-          <button onClick={startGame} className="start-button">
+          <button onClick={startGame} className="wip-start-button">
             Start Game
           </button>
         )}
       </header>
 
-      <main className="game-area">
-        {gameStarted && !gameCompleted && (
-          <div className="orders-container">
+      {gameStarted && !gameCompleted && (
+        <div className="wip-game-content">
+          {/* Left Sidebar - Orders */}
+          <div className="wip-orders-sidebar">
+            <h3>Orders</h3>
             {orders.filter(order => !order.isCompleted).map(order => {
-              // In WIP mode, no orders are disabled - all can be worked on at any time
-              const isDisabled = false;
+              const elapsedTime = Math.floor((Date.now() - order.startTime) / 1000);
+              const completionPercentage = Math.round(
+                (order.addedIngredients.length / order.requiredIngredients.length) * 100
+              );
               
               return (
-                <PizzaOrder
+                <div
                   key={order.id}
-                  order={order}
-                  availableIngredients={INGREDIENTS}
-                  onAddIngredient={handleAddIngredient}
-                  isDisabled={isDisabled}
-                  gameMode="wip"
-                />
+                  className={`wip-order-item ${selectedOrderId === order.id ? 'selected' : ''}`}
+                  onClick={() => setSelectedOrderId(order.id)}
+                >
+                  <div className="wip-order-header">
+                    <span className="wip-order-title">Order #{order.id}</span>
+                    <span className="wip-order-timer">⏱️ {formatTime(elapsedTime)}</span>
+                  </div>
+                  <div className="wip-order-progress">
+                    <div className="wip-progress-bar">
+                      <div
+                        className="wip-progress-fill"
+                        style={{ width: `${completionPercentage}%` }}
+                      ></div>
+                    </div>
+                    <span>{completionPercentage}% Complete</span>
+                  </div>
+                  <div className="wip-order-ingredients">
+                    {order.requiredIngredients.length} ingredients needed
+                  </div>
+                </div>
               );
             })}
           </div>
-        )}
-      </main>
+
+          {/* Center Area - Pizza Display */}
+          <div className="wip-pizza-area">
+            <div className={`wip-tabletop ${!getSelectedOrder() ? 'empty' : ''}`}>
+              {getSelectedOrder() ? (
+                <div className="wip-pizza-display">
+                  <div className="wip-order-note">
+                    <h4>Order #{getSelectedOrder().id}</h4>
+                    <ul>
+                      {getSelectedOrder().requiredIngredients.map((ingredient, index) => (
+                        <li
+                          key={index}
+                          className={getSelectedOrder().addedIngredients.includes(ingredient) ? 'completed' : ''}
+                        >
+                          {ingredient}
+                          {getSelectedOrder().addedIngredients.includes(ingredient) && ' ✓'}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="wip-pizza-base">
+                    {getSelectedOrder().addedIngredients.map((ingredient, index) => (
+                      <div
+                        key={index}
+                        className="wip-pizza-ingredient"
+                        style={{
+                          '--rotation': `${index * 45}deg`,
+                          top: `${40 + Math.sin(index * 0.8) * 30}%`,
+                          left: `${50 + Math.cos(index * 0.8) * 25}%`,
+                        }}
+                      >
+                        {ingredient.split(' ')[0]}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="wip-empty-message">
+                  Select an order to start making pizza!
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Sidebar - Ingredients */}
+          <div className="wip-ingredients-sidebar">
+            <h3>Ingredients</h3>
+            {INGREDIENTS.map(ingredient => (
+              <div
+                key={ingredient}
+                className={`wip-ingredient-item ${!canAddIngredient(ingredient) ? 'disabled' : ''}`}
+                onClick={() => canAddIngredient(ingredient) && handleAddIngredient(ingredient)}
+              >
+                {ingredient}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {gameCompleted && (
         <ResultsModal
@@ -176,9 +281,9 @@ function WIPGame() {
         />
       )}
       
-      {/* Temporary debug */}
-      <div style={{position: 'fixed', bottom: '10px', left: '10px', background: 'rgba(0,0,0,0.8)', color: 'white', padding: '10px', fontSize: '12px', borderRadius: '5px'}}>
-        Completed: {completedOrders.length} | Game Complete: {gameCompleted.toString()}
+      {/* Debug Info */}
+      <div className="wip-debug">
+        Completed: {completedOrders.length} | Game Complete: {gameCompleted.toString()} | Selected: {selectedOrderId || 'None'}
       </div>
     </div>
   );

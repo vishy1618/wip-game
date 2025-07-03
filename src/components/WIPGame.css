@@ -1,0 +1,290 @@
+.wip-game {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.wip-game-nav {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.wip-home-link {
+  text-decoration: none;
+  color: #495057;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.wip-home-link:hover {
+  color: #007bff;
+}
+
+.wip-game-header {
+  padding: 1rem;
+  text-align: center;
+  background-color: #fff;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.wip-game-header h1 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.wip-game-description {
+  margin: 0 0 1rem 0;
+  color: #666;
+}
+
+.wip-start-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.wip-start-button:hover {
+  background-color: #218838;
+}
+
+.wip-game-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Sidebar - Orders */
+.wip-orders-sidebar {
+  width: 300px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.wip-orders-sidebar h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.wip-order-item {
+  background-color: white;
+  border: 2px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.wip-order-item:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 4px rgba(0,123,255,0.1);
+}
+
+.wip-order-item.selected {
+  border-color: #007bff;
+  background-color: #e3f2fd;
+  box-shadow: 0 2px 8px rgba(0,123,255,0.2);
+}
+
+.wip-order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.wip-order-title {
+  font-weight: bold;
+  color: #333;
+}
+
+.wip-order-timer {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.wip-order-progress {
+  margin-bottom: 0.5rem;
+}
+
+.wip-progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.wip-progress-fill {
+  height: 100%;
+  background-color: #28a745;
+  transition: width 0.3s;
+}
+
+.wip-order-ingredients {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Center Area - Pizza Display */
+.wip-pizza-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  position: relative;
+}
+
+.wip-tabletop {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle at center, #8B4513 0%, #A0522D 50%, #8B4513 100%);
+  border-radius: 20px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wip-tabletop.empty {
+  background: radial-gradient(circle at center, #D2B48C 0%, #DEB887 50%, #D2B48C 100%);
+}
+
+.wip-pizza-display {
+  position: relative;
+}
+
+.wip-pizza-base {
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle at center, #FFE4B5 0%, #DEB887 70%, #D2B48C 100%);
+  border-radius: 50%;
+  border: 3px solid #CD853F;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.wip-pizza-ingredient {
+  position: absolute;
+  background-color: #ff6b6b;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+  transform: rotate(var(--rotation, 0deg));
+}
+
+.wip-order-note {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 0.5rem;
+  min-width: 200px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.wip-order-note h4 {
+  margin: 0 0 0.5rem 0;
+  color: #856404;
+  font-size: 0.9rem;
+}
+
+.wip-order-note ul {
+  margin: 0;
+  padding-left: 1rem;
+  color: #856404;
+  font-size: 0.8rem;
+}
+
+.wip-order-note li.completed {
+  text-decoration: line-through;
+  color: #28a745;
+}
+
+.wip-empty-message {
+  color: #6c757d;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+/* Right Sidebar - Ingredients */
+.wip-ingredients-sidebar {
+  width: 250px;
+  background-color: #f8f9fa;
+  border-left: 1px solid #dee2e6;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.wip-ingredients-sidebar h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.wip-ingredient-item {
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  font-weight: 500;
+}
+
+.wip-ingredient-item:hover {
+  border-color: #28a745;
+  background-color: #f8fff9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+}
+
+.wip-ingredient-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f8f9fa;
+}
+
+.wip-ingredient-item.disabled:hover {
+  border-color: #dee2e6;
+  background-color: #f8f9fa;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Debug Info */
+.wip-debug {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 10px;
+  font-size: 12px;
+  border-radius: 5px;
+  z-index: 1000;
+}
