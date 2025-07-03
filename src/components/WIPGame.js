@@ -38,6 +38,7 @@ function WIPGame() {
   const [gameCompleted, setGameCompleted] = useState(false);
   const [orderCount, setOrderCount] = useState(0);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (!gameStarted || gameCompleted || orderCount >= 5) return;
@@ -74,17 +75,39 @@ function WIPGame() {
   }, [completedOrders]);
 
   const handleAddIngredient = (ingredient) => {
-    if (!selectedOrderId) return;
+    // Clear any previous error message
+    setErrorMessage('');
+    
+    if (!selectedOrderId) {
+      setErrorMessage('Please select an order first!');
+      setTimeout(() => setErrorMessage(''), 3000);
+      return;
+    }
+    
+    const selectedOrder = getSelectedOrder();
+    if (!selectedOrder) {
+      setErrorMessage('No valid order selected!');
+      setTimeout(() => setErrorMessage(''), 3000);
+      return;
+    }
+    
+    // Check if ingredient is not required for this order
+    if (!selectedOrder.requiredIngredients.includes(ingredient)) {
+      setErrorMessage(`${ingredient} is not needed for this order!`);
+      setTimeout(() => setErrorMessage(''), 3000);
+      return;
+    }
+    
+    // Check if ingredient is already added
+    if (selectedOrder.addedIngredients.includes(ingredient)) {
+      setErrorMessage(`${ingredient} has already been added!`);
+      setTimeout(() => setErrorMessage(''), 3000);
+      return;
+    }
     
     setOrders(prev => {
       const newOrders = prev.map(order => {
         if (order.id === selectedOrderId) {
-          // Only allow adding ingredients that are required and not already added
-          if (!order.requiredIngredients.includes(ingredient) || 
-              order.addedIngredients.includes(ingredient)) {
-            return order;
-          }
-          
           const newAddedIngredients = [...order.addedIngredients, ingredient];
           const isCompleted = newAddedIngredients.length === order.requiredIngredients.length;
           
@@ -130,6 +153,7 @@ function WIPGame() {
     setOrderCount(0);
     setGameCompleted(false);
     setSelectedOrderId(null);
+    setErrorMessage('');
   };
 
   const resetGame = () => {
@@ -139,6 +163,7 @@ function WIPGame() {
     setCompletedOrders([]);
     setOrderCount(0);
     setSelectedOrderId(null);
+    setErrorMessage('');
   };
 
   const formatTime = (seconds) => {
@@ -149,13 +174,6 @@ function WIPGame() {
 
   const getSelectedOrder = () => {
     return orders.find(order => order.id === selectedOrderId && !order.isCompleted);
-  };
-
-  const canAddIngredient = (ingredient) => {
-    const selectedOrder = getSelectedOrder();
-    if (!selectedOrder) return false;
-    return selectedOrder.requiredIngredients.includes(ingredient) && 
-           !selectedOrder.addedIngredients.includes(ingredient);
   };
 
   return (
@@ -260,11 +278,16 @@ function WIPGame() {
           {/* Right Sidebar - Ingredients */}
           <div className="wip-ingredients-sidebar">
             <h3>Ingredients</h3>
+            {errorMessage && (
+              <div className="wip-error-message">
+                {errorMessage}
+              </div>
+            )}
             {INGREDIENTS.map(ingredient => (
               <div
                 key={ingredient}
-                className={`wip-ingredient-item ${!canAddIngredient(ingredient) ? 'disabled' : ''}`}
-                onClick={() => canAddIngredient(ingredient) && handleAddIngredient(ingredient)}
+                className="wip-ingredient-item"
+                onClick={() => handleAddIngredient(ingredient)}
               >
                 {ingredient}
               </div>
