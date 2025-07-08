@@ -39,7 +39,13 @@ const GameplayOverview = () => {
       setStats(data);
     } catch (error) {
       console.error('Error fetching game statistics:', error);
-      setError(error.message);
+      
+      // Only show error on screen for initial load or persistent failures
+      // Skip showing temporary errors like 502 during polling
+      if (showLoading || !stats) {
+        setError(error.message);
+      }
+      // For polling errors, just log them and keep showing last successful data
     } finally {
       setLoading(false);
     }
