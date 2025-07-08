@@ -16,6 +16,19 @@ const INGREDIENTS = [
   'Garlic'
 ];
 
+const INGREDIENT_EMOJIS = {
+  'Mozzarella cheese': '🧀',
+  'Tomato sauce': '🍅',
+  'Pepperoni': '🔴',
+  'Mushrooms': '🍄',
+  'Onions': '🧅',
+  'Bell peppers': '🫑',
+  'Black olives': '🫒',
+  'Italian sausage': '🌭',
+  'Fresh basil': '🌿',
+  'Garlic': '🧄'
+};
+
 const generateRandomOrder = (orderId) => {
   const numIngredients = Math.floor(Math.random() * 4) + 2; // 2-5 ingredients
   const shuffled = [...INGREDIENTS].sort(() => 0.5 - Math.random());
@@ -199,6 +212,58 @@ function WIPGame() {
     return selectedOrder.addedIngredients.length === selectedOrder.requiredIngredients.length;
   };
 
+  const generateIngredientPosition = () => {
+    // Create a more natural distribution across the pizza
+    const radius = Math.random() * 35 + 15; // Random radius between 15% and 50% from center
+    const angle = Math.random() * 360; // Completely random angle
+    const angleRad = (angle * Math.PI) / 180;
+    
+    const x = 50 + radius * Math.cos(angleRad);
+    const y = 50 + radius * Math.sin(angleRad);
+    
+    return {
+      top: `${Math.max(10, Math.min(90, y))}%`,
+      left: `${Math.max(10, Math.min(90, x))}%`,
+      transform: `rotate(${Math.random() * 360}deg)` // Random rotation for natural look
+    };
+  };
+
+  const getIngredientCount = (ingredient) => {
+    // More generous and uniform distribution for all ingredients
+    return 12; // Uniform count for all ingredients for better coverage
+  };
+
+  const generateUniformPositions = (count) => {
+    const positions = [];
+    const gridSize = Math.ceil(Math.sqrt(count));
+    const step = 80 / (gridSize + 1); // 80% of pizza area, leaving 10% margin on each side
+    
+    for (let i = 0; i < count; i++) {
+      // Create a grid-based position with randomness
+      const gridX = i % gridSize;
+      const gridY = Math.floor(i / gridSize);
+      
+      // Base position from grid
+      const baseX = 20 + gridX * step; // Start at 20% from left
+      const baseY = 20 + gridY * step; // Start at 20% from top
+      
+      // Add randomness to avoid perfect grid
+      const randomOffsetX = (Math.random() - 0.5) * step * 0.8;
+      const randomOffsetY = (Math.random() - 0.5) * step * 0.8;
+      
+      const finalX = Math.max(10, Math.min(90, baseX + randomOffsetX));
+      const finalY = Math.max(10, Math.min(90, baseY + randomOffsetY));
+      
+      positions.push({
+        top: `${finalY}%`,
+        left: `${finalX}%`,
+        transform: `rotate(${Math.random() * 360}deg)`
+      });
+    }
+    
+    return positions;
+  };
+
   return (
     <div className="wip-game">
       <nav className="wip-game-nav">
@@ -282,19 +347,19 @@ function WIPGame() {
               {getSelectedOrder() ? (
                 <div className="wip-pizza-display">
                   <div className="wip-pizza-base">
-                    {getSelectedOrder().addedIngredients.map((ingredient, index) => (
-                      <div
-                        key={index}
-                        className="wip-pizza-ingredient"
-                        style={{
-                          '--rotation': `${index * 45}deg`,
-                          top: `${40 + Math.sin(index * 0.8) * 30}%`,
-                          left: `${50 + Math.cos(index * 0.8) * 25}%`,
-                        }}
-                      >
-                        {ingredient.split(' ')[0]}
-                      </div>
-                    ))}
+                    {getSelectedOrder().addedIngredients.map((ingredient, ingredientIndex) => {
+                      const count = getIngredientCount(ingredient);
+                      const positions = generateUniformPositions(count);
+                      return positions.map((position, pieceIndex) => (
+                        <div
+                          key={`${ingredientIndex}-${pieceIndex}`}
+                          className="wip-pizza-ingredient"
+                          style={position}
+                        >
+                          {INGREDIENT_EMOJIS[ingredient] || '❓'}
+                        </div>
+                      ));
+                    }).flat()}
                   </div>
                 </div>
               ) : (
