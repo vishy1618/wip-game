@@ -273,18 +273,23 @@ function WIPGame() {
   const generateUniformPositions = (count) => {
     const positions = [];
     const gridSize = Math.ceil(Math.sqrt(count));
-    const step = 80 / (gridSize + 1); // 80% of pizza area, leaving 10% margin on each side
+    const gridSpacing = 60; // Total area for the grid
+    const step = gridSpacing / Math.max(1, gridSize - 1); // Space between grid points
+    
+    // Calculate grid offset to center it on the pizza
+    const gridStartX = (100 - gridSpacing) / 2; // Center horizontally
+    const gridStartY = (100 - gridSpacing) / 2; // Center vertically
     
     for (let i = 0; i < count; i++) {
       // Create a grid-based position with randomness
       const gridX = i % gridSize;
       const gridY = Math.floor(i / gridSize);
       
-      // Base position from grid
-      const baseX = 20 + gridX * step; // Start at 20% from left
-      const baseY = 20 + gridY * step; // Start at 20% from top
+      // Base position from centered grid
+      const baseX = gridStartX + gridX * step;
+      const baseY = gridStartY + gridY * step;
       
-      // Add randomness to avoid perfect grid
+      // Add randomness for natural distribution
       const randomOffsetX = (Math.random() - 0.5) * step * 0.8;
       const randomOffsetY = (Math.random() - 0.5) * step * 0.8;
       
