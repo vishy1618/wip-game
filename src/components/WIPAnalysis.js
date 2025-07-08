@@ -8,9 +8,7 @@ import {
   CartesianGrid, 
   Tooltip, 
   Legend, 
-  ResponsiveContainer,
-  ScatterChart,
-  Scatter
+  ResponsiveContainer
 } from 'recharts';
 import './WIPAnalysis.css';
 
@@ -130,11 +128,15 @@ const WIPAnalysis = () => {
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload;
       return (
         <div className="custom-tooltip">
-          <p className="label">{`Game ${label}`}</p>
-          <p className="wip-value">{`WIP: ${payload[0].payload.averageWIP}`}</p>
-          <p className="time-value">{`${payload[0].name}: ${formatTime(payload[0].value)}`}</p>
+          <p className="label">{`WIP: ${data.averageWIP}`}</p>
+          {payload.map((entry, index) => (
+            <p key={index} className="time-value" style={{ color: entry.color }}>
+              {`${entry.name}: ${formatTime(entry.value)}`}
+            </p>
+          ))}
         </div>
       );
     }
@@ -220,96 +222,54 @@ const WIPAnalysis = () => {
 
       <div className="charts-container">
         <div className="chart-section">
-          <h2>WIP vs Average Time Per Pizza</h2>
-          <ResponsiveContainer width="100%" height={400}>
-            <ScatterChart
-              data={gameData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="averageWIP" 
-                name="Average WIP"
-                type="number"
-                domain={['dataMin - 0.5', 'dataMax + 0.5']}
-              />
-              <YAxis 
-                name="Average Time Per Pizza (s)"
-                tickFormatter={formatTime}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Scatter 
-                name="Average Time Per Pizza" 
-                dataKey="averageTimePerPizza" 
-                fill="#8884d8"
-                line={{ stroke: '#8884d8', strokeWidth: 2 }}
-              />
-            </ScatterChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="chart-section">
-          <h2>WIP vs Total Time</h2>
-          <ResponsiveContainer width="100%" height={400}>
-            <ScatterChart
-              data={gameData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="averageWIP" 
-                name="Average WIP"
-                type="number"
-                domain={['dataMin - 0.5', 'dataMax + 0.5']}
-              />
-              <YAxis 
-                name="Total Time (s)"
-                tickFormatter={formatTime}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Scatter 
-                name="Total Time" 
-                dataKey="totalTime" 
-                fill="#82ca9d"
-                line={{ stroke: '#82ca9d', strokeWidth: 2 }}
-              />
-            </ScatterChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="chart-section">
-          <h2>WIP Trends Over Time</h2>
-          <ResponsiveContainer width="100%" height={400}>
+          <h2>WIP vs Performance Metrics</h2>
+          <ResponsiveContainer width="100%" height={500}>
             <LineChart
-              data={gameData}
+              data={gameData.sort((a, b) => a.averageWIP - b.averageWIP)}
               margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
-                dataKey="gameNumber" 
-                name="Game Number"
+                dataKey="averageWIP" 
+                name="Average WIP"
+                type="number"
+                domain={['dataMin - 0.2', 'dataMax + 0.2']}
               />
-              <YAxis yAxisId="left" orientation="left" />
-              <YAxis yAxisId="right" orientation="right" tickFormatter={formatTime} />
+              <YAxis 
+                yAxisId="left"
+                orientation="left"
+                tickFormatter={formatTime}
+                label={{ value: 'Average Time Per Pizza', angle: -90, position: 'insideLeft' }}
+              />
+              <YAxis 
+                yAxisId="right"
+                orientation="right"
+                tickFormatter={formatTime}
+                label={{ value: 'Total Time', angle: 90, position: 'insideRight' }}
+              />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
               <Line 
                 yAxisId="left"
                 type="monotone" 
-                dataKey="averageWIP" 
+                dataKey="averageTimePerPizza" 
                 stroke="#8884d8" 
-                name="Average WIP"
-                strokeWidth={2}
-                dot={{ r: 4 }}
+                name="Avg Time Per Pizza"
+                strokeWidth={3}
+                dot={{ r: 5, fill: '#8884d8' }}
+                connectNulls={false}
+                activeDot={{ r: 8 }}
               />
               <Line 
                 yAxisId="right"
                 type="monotone" 
-                dataKey="averageTimePerPizza" 
+                dataKey="totalTime" 
                 stroke="#82ca9d" 
-                name="Avg Time Per Pizza"
-                strokeWidth={2}
-                dot={{ r: 4 }}
+                name="Total Time"
+                strokeWidth={3}
+                dot={{ r: 5, fill: '#82ca9d' }}
+                connectNulls={false}
+                activeDot={{ r: 8 }}
               />
             </LineChart>
           </ResponsiveContainer>

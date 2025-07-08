@@ -125,7 +125,7 @@ const GameplayOverview = () => {
             {wip.avgWIP !== undefined && (
               <div className="stat-card">
                 <h2>Average Work in Progress</h2>
-                <div className="stat-value large">{wip.avgWIP}</div>
+                <div className="stat-value large">{wip.avgWIP.toFixed(2)}</div>
                 <div className="stat-description">Average pizzas worked on simultaneously</div>
               </div>
             )}
