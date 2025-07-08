@@ -42,12 +42,11 @@ const WIPAnalysis = () => {
 
       const data = await response.json();
       
-      // For now, simulate individual game data based on the aggregate stats
-      // In a real implementation, we'd get this from the API
-      const simulatedGames = generateSimulatedGameData(data.wip);
+      // Use the real individual game data from the API
+      const realGameData = data.individualGames.wip || [];
       
-      setGameData(simulatedGames);
-      calculateCorrelations(simulatedGames);
+      setGameData(realGameData);
+      calculateCorrelations(realGameData);
     } catch (error) {
       console.error('Error fetching game data:', error);
       setError(error.message);
@@ -56,34 +55,7 @@ const WIPAnalysis = () => {
     }
   };
 
-  const generateSimulatedGameData = (wipStats) => {
-    if (!wipStats || wipStats.count === 0) return [];
-    
-    const games = [];
-    const baseAvgTime = wipStats.avgAverageTime;
-    const baseTotalTime = wipStats.avgTotalTime;
-    const baseWIP = wipStats.avgWIP;
-    
-    // Generate synthetic data points around the averages
-    for (let i = 0; i < Math.min(wipStats.count, 50); i++) {
-      const wipVariation = baseWIP + (Math.random() - 0.5) * 2;
-      const avgTimeVariation = baseAvgTime + (Math.random() - 0.5) * baseAvgTime * 0.4;
-      const totalTimeVariation = baseTotalTime + (Math.random() - 0.5) * baseTotalTime * 0.3;
-      
-      // Add some correlation: higher WIP tends to reduce time per pizza
-      const wipFactor = Math.max(0.5, Math.min(1.5, 1 + (baseWIP - wipVariation) * 0.1));
-      
-      games.push({
-        gameNumber: i + 1,
-        averageWIP: Math.max(1, Math.round(wipVariation * 10) / 10),
-        averageTimePerPizza: Math.max(5, avgTimeVariation * wipFactor),
-        totalTime: Math.max(25, totalTimeVariation * wipFactor),
-        timestamp: new Date(Date.now() - (wipStats.count - i) * 24 * 60 * 60 * 1000).toISOString()
-      });
-    }
-    
-    return games.sort((a, b) => a.gameNumber - b.gameNumber);
-  };
+
 
   const calculateCorrelations = (games) => {
     if (games.length < 2) return;

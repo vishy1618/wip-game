@@ -43,7 +43,8 @@ export default async function handler(request, response) {
           multitask: { count: 0, avgTotalTime: 0, avgAverageTime: 0 },
           singletask: { count: 0, avgTotalTime: 0, avgAverageTime: 0 },
           wip: { count: 0, avgTotalTime: 0, avgAverageTime: 0, avgWIP: 0 },
-          comparison: { totalTimePercentage: 0, averageTimePercentage: 0 }
+          comparison: { totalTimePercentage: 0, averageTimePercentage: 0 },
+          individualGames: { wip: [] }
         });
         return;
       }
@@ -120,6 +121,15 @@ export default async function handler(request, response) {
         comparison: {
           totalTimePercentage: Math.round(totalTimePercentage * 100) / 100,
           averageTimePercentage: Math.round(averageTimePercentage * 100) / 100
+        },
+        individualGames: {
+          wip: wipRuns.map((run, index) => ({
+            gameNumber: index + 1,
+            averageWIP: run.averageWIP || 0,
+            averageTimePerPizza: run.averageTime,
+            totalTime: run.totalTime,
+            timestamp: run.timestamp || run.createdAt
+          }))
         }
       });
 
