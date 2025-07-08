@@ -313,8 +313,8 @@ function WIPGame() {
       </nav>
       
       <header className="wip-game-header">
-        <h1>Pizza WIP Game</h1>
-        <p className="wip-game-description">Work on any order at any time - no constraints or limitations!</p>
+        <h1>Pizza Game</h1>
+        <p className="wip-game-description">Prepare as many pizzas as possible without keeping customers waiting!</p>
         {!gameStarted && !gameCompleted && (
           <button onClick={startGame} className="wip-start-button">
             Start Game
