@@ -142,8 +142,30 @@ export default async function handler(request, response) {
   }
 
   try {
-    // Parse request body
-    const { totalTime, averageTime, gameType, averageWIP } = request.body;
+    // Parse request body - handle both string and already parsed JSON
+    console.log('Raw request body:', request.body);
+    console.log('Request body type:', typeof request.body);
+    
+    let requestBody;
+    if (typeof request.body === 'string') {
+      try {
+        requestBody = JSON.parse(request.body);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        console.error('Body content:', request.body);
+        response.status(400).json({ 
+          error: 'Invalid JSON in request body',
+          details: parseError.message,
+          receivedBody: request.body
+        });
+        return;
+      }
+    } else {
+      requestBody = request.body;
+    }
+    
+    console.log('Parsed request body:', requestBody);
+    const { totalTime, averageTime, gameType, averageWIP } = requestBody;
 
     // Validate required parameters
     if (totalTime === undefined || totalTime === null) {

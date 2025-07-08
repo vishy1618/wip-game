@@ -45,18 +45,36 @@ const ResultsModal = ({ completedOrders, onRestart, gameType, wipSamples }) => {
     setApiStatus({ loading: true, success: null, error: null });
     
     try {
+      const requestData = {
+        totalTime,
+        averageTime,
+        gameType,
+        averageWIP
+      };
+      
+      console.log('Sending game results:', requestData);
+      
       const response = await fetch('/game-results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          totalTime,
-          averageTime,
-          gameType,
-          averageWIP
-        })
+        body: JSON.stringify(requestData)
       });
+
+      if (!response.ok) {
+        // Handle HTTP errors
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          // If we can't parse the error response, use the status
+        }
+        setApiStatus({ loading: false, success: false, error: errorMessage });
+        console.error('HTTP error saving results:', errorMessage);
+        return;
+      }
 
       const result = await response.json();
       
