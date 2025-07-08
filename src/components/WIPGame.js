@@ -38,6 +38,7 @@ const generateRandomOrder = (orderId) => {
     id: orderId,
     requiredIngredients,
     addedIngredients: [],
+    addedIngredientPositions: {}, // Store positions for each ingredient
     startTime: Date.now(),
     completionTime: null,
     isCompleted: false
@@ -145,9 +146,17 @@ function WIPGame() {
     setOrders(prev => {
       const newOrders = prev.map(order => {
         if (order.id === selectedOrderId) {
+          // Generate stable positions for this ingredient
+          const count = getIngredientCount(ingredient);
+          const positions = generateUniformPositions(count);
+          
           return {
             ...order,
-            addedIngredients: [...order.addedIngredients, ingredient]
+            addedIngredients: [...order.addedIngredients, ingredient],
+            addedIngredientPositions: {
+              ...order.addedIngredientPositions,
+              [ingredient]: positions
+            }
           };
         }
         return order;
@@ -376,11 +385,10 @@ function WIPGame() {
                 <div className="wip-pizza-display">
                   <div className="wip-pizza-base">
                     {getSelectedOrder().addedIngredients.map((ingredient, ingredientIndex) => {
-                      const count = getIngredientCount(ingredient);
-                      const positions = generateUniformPositions(count);
+                      const positions = getSelectedOrder().addedIngredientPositions[ingredient] || [];
                       return positions.map((position, pieceIndex) => (
                         <div
-                          key={`${ingredientIndex}-${pieceIndex}`}
+                          key={`${ingredient}-${pieceIndex}`}
                           className="wip-pizza-ingredient"
                           style={position}
                         >
