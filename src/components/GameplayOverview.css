@@ -6,7 +6,7 @@
 }
 
 .home-link {
-  color: #333;
+  color: #000;
   text-decoration: none;
   background: rgba(255, 255, 255, 0.9);
   padding: 10px 20px;
@@ -20,7 +20,7 @@
 
 .home-link:hover {
   background: rgba(255, 255, 255, 1);
-  color: #333;
+  color: #000;
   text-decoration: none;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -35,7 +35,7 @@
 
 .stats-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 30px;
   margin-bottom: 30px;
 }
