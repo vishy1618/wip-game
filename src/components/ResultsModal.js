@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './ResultsModal.css';
 
 const ResultsModal = ({ completedOrders, onRestart, gameType, wipSamples }) => {
+  const navigate = useNavigate();
   const [apiStatus, setApiStatus] = useState({ loading: false, success: null, error: null });
   const [hasCalledApi, setHasCalledApi] = useState(false);
   const results = useMemo(() => {
@@ -92,36 +94,33 @@ const ResultsModal = ({ completedOrders, onRestart, gameType, wipSamples }) => {
         <h2>🍕 Game Complete! 🍕</h2>
         
         <div className="results-content">
-          <div className="total-time">
-            <h3>Total Time to Complete All Orders</h3>
-            <div className="time-display">{formatTime(results.totalTime)}</div>
+          <div className="results-summary">
+            <div className="stat-item">
+              <h4>Total Time</h4>
+              <div className="stat-value">{formatTime(results.totalTime)}</div>
+            </div>
+            <div className="stat-item">
+              <h4>Average Time</h4>
+              <div className="stat-value">{formatTime(results.averageTime)}</div>
+            </div>
+            {results.averageWIP !== undefined && (
+              <div className="stat-item">
+                <h4>Average WIP</h4>
+                <div className="stat-value wip-value">{results.averageWIP}</div>
+              </div>
+            )}
           </div>
 
           <div className="order-breakdown">
-            <h3>Time per Pizza</h3>
-            <ul>
+            <h4>Individual Times</h4>
+            <div className="order-times">
               {results.orderTimes.map(order => (
-                <li key={order.id}>
-                  Order #{order.id}: {formatTime(order.time)}
-                </li>
+                <span key={order.id} className="order-time">
+                  #{order.id}: {formatTime(order.time)}
+                </span>
               ))}
-            </ul>
-          </div>
-
-          <div className="average-time">
-            <h3>Average Time per Pizza</h3>
-            <div className="time-display">{formatTime(results.averageTime)}</div>
-          </div>
-
-          {results.averageWIP !== undefined && (
-            <div className="wip-stat">
-              <h3>Average Work in Progress (WIP)</h3>
-              <div className="wip-display">{results.averageWIP}</div>
-              <p className="wip-description">
-                Average number of pizzas being worked on simultaneously when active
-              </p>
             </div>
-          )}
+          </div>
           
           <div className="api-status">
             {apiStatus.loading && <p>💾 Saving results...</p>}
@@ -130,9 +129,14 @@ const ResultsModal = ({ completedOrders, onRestart, gameType, wipSamples }) => {
           </div>
         </div>
 
-        <button onClick={onRestart} className="restart-button">
-          Play Again
-        </button>
+        <div className="modal-buttons">
+          <button onClick={onRestart} className="restart-button">
+            Play Again
+          </button>
+          <button onClick={() => navigate('/')} className="exit-button">
+            Exit Game
+          </button>
+        </div>
       </div>
     </div>
   );
