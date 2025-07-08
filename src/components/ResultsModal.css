@@ -45,13 +45,15 @@
 }
 
 .total-time,
-.average-time {
+.average-time,
+.wip-stat {
   margin: 25px 0;
 }
 
 .total-time h3,
 .average-time h3,
-.order-breakdown h3 {
+.order-breakdown h3,
+.wip-stat h3 {
   color: #333;
   margin-bottom: 15px;
   font-size: 1.3em;
@@ -96,6 +98,25 @@
 
 .order-breakdown li:last-child {
   border-bottom: none;
+}
+
+.wip-display {
+  font-size: 2em;
+  font-weight: bold;
+  color: #9b59b6;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 15px;
+  display: inline-block;
+  min-width: 120px;
+  border: 3px solid #9b59b6;
+}
+
+.wip-description {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 10px;
+  font-style: italic;
 }
 
 .restart-button {

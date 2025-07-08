@@ -52,6 +52,8 @@ function WIPGame() {
   const [orderCount, setOrderCount] = useState(0);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [gameStartTime, setGameStartTime] = useState(null);
+  const [wipSamples, setWipSamples] = useState([]);
 
   useEffect(() => {
     if (!gameStarted || gameCompleted || orderCount >= 5) return;
@@ -86,6 +88,28 @@ function WIPGame() {
       setGameCompleted(true);
     }
   }, [completedOrders]);
+
+  // Calculate current WIP (number of orders that have been started but not completed)
+  const getCurrentWIP = () => {
+    return orders.filter(order => 
+      order.addedIngredients.length > 0 && !order.isCompleted
+    ).length;
+  };
+
+  // Sample WIP every second during gameplay (only when there are orders to work on)
+  useEffect(() => {
+    if (!gameStarted || gameCompleted || orders.length === 0) return;
+
+    const sampleWIP = () => {
+      const currentWIP = getCurrentWIP();
+      const timestamp = Date.now();
+      // Only sample if there are orders available (even if WIP is 0, orders exist)
+      setWipSamples(prev => [...prev, { wip: currentWIP, timestamp }]);
+    };
+
+    const interval = setInterval(sampleWIP, 1000);
+    return () => clearInterval(interval);
+  }, [gameStarted, gameCompleted, orders]);
 
   const handleAddIngredient = (ingredient) => {
     // Clear any previous error message
@@ -134,12 +158,14 @@ function WIPGame() {
 
   const startGame = () => {
     setGameStarted(true);
+    setGameStartTime(Date.now());
     setOrders([]);
     setCompletedOrders([]);
     setOrderCount(0);
     setGameCompleted(false);
     setSelectedOrderId(null);
     setErrorMessage('');
+    setWipSamples([]);
   };
 
   const resetGame = () => {
@@ -150,6 +176,8 @@ function WIPGame() {
     setOrderCount(0);
     setSelectedOrderId(null);
     setErrorMessage('');
+    setGameStartTime(null);
+    setWipSamples([]);
   };
 
   const formatTime = (seconds) => {
@@ -398,6 +426,7 @@ function WIPGame() {
           )}
           onRestart={resetGame}
           gameType="wip"
+          wipSamples={wipSamples}
         />
       )}
       

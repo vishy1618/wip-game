@@ -42,6 +42,7 @@ export default async function handler(request, response) {
         response.status(200).json({
           multitask: { count: 0, avgTotalTime: 0, avgAverageTime: 0 },
           singletask: { count: 0, avgTotalTime: 0, avgAverageTime: 0 },
+          wip: { count: 0, avgTotalTime: 0, avgAverageTime: 0, avgWIP: 0 },
           comparison: { totalTimePercentage: 0, averageTimePercentage: 0 }
         });
         return;
@@ -51,12 +52,16 @@ export default async function handler(request, response) {
       const multitaskRuns = [];
       const singletaskRuns = [];
 
+      const wipRuns = [];
+      
       snapshot.docs.forEach(doc => {
         const data = doc.data();
         if (data.gameType === 'multitask') {
           multitaskRuns.push(data);
         } else if (data.gameType === 'singletask') {
           singletaskRuns.push(data);
+        } else if (data.gameType === 'wip') {
+          wipRuns.push(data);
         }
       });
 
@@ -82,6 +87,20 @@ export default async function handler(request, response) {
           : 0
       };
 
+      // Calculate averages for WIP
+      const wipStats = {
+        count: wipRuns.length,
+        avgTotalTime: wipRuns.length > 0 
+          ? wipRuns.reduce((sum, run) => sum + run.totalTime, 0) / wipRuns.length 
+          : 0,
+        avgAverageTime: wipRuns.length > 0 
+          ? wipRuns.reduce((sum, run) => sum + run.averageTime, 0) / wipRuns.length 
+          : 0,
+        avgWIP: wipRuns.length > 0 
+          ? wipRuns.reduce((sum, run) => sum + (run.averageWIP || 0), 0) / wipRuns.length 
+          : 0
+      };
+
       // Calculate comparison percentages (positive means multitask is faster)
       let totalTimePercentage = 0;
       let averageTimePercentage = 0;
@@ -97,6 +116,7 @@ export default async function handler(request, response) {
       response.status(200).json({
         multitask: multitaskStats,
         singletask: singletaskStats,
+        wip: wipStats,
         comparison: {
           totalTimePercentage: Math.round(totalTimePercentage * 100) / 100,
           averageTimePercentage: Math.round(averageTimePercentage * 100) / 100
@@ -123,7 +143,7 @@ export default async function handler(request, response) {
 
   try {
     // Parse request body
-    const { totalTime, averageTime, gameType } = request.body;
+    const { totalTime, averageTime, gameType, averageWIP } = request.body;
 
     // Validate required parameters
     if (totalTime === undefined || totalTime === null) {
@@ -142,15 +162,15 @@ export default async function handler(request, response) {
 
     if (!gameType || typeof gameType !== 'string') {
       response.status(400).json({ 
-        error: 'gameType is required and must be a string (multitask or singletask)' 
+        error: 'gameType is required and must be a string (multitask, singletask, or wip)' 
       });
       return;
     }
 
     // Validate game type values
-    if (gameType !== 'multitask' && gameType !== 'singletask') {
+    if (gameType !== 'multitask' && gameType !== 'singletask' && gameType !== 'wip') {
       response.status(400).json({ 
-        error: 'gameType must be either "multitask" or "singletask"' 
+        error: 'gameType must be either "multitask", "singletask", or "wip"' 
       });
       return;
     }
@@ -173,6 +193,18 @@ export default async function handler(request, response) {
       return;
     }
 
+    // Validate averageWIP if provided
+    let averageWIPNum = null;
+    if (averageWIP !== undefined && averageWIP !== null) {
+      averageWIPNum = Number(averageWIP);
+      if (isNaN(averageWIPNum) || averageWIPNum < 0) {
+        response.status(400).json({ 
+          error: 'averageWIP must be a valid positive number' 
+        });
+        return;
+      }
+    }
+
     // Prepare document data
     const gameRunData = {
       totalTime: totalTimeNum,
@@ -181,6 +213,11 @@ export default async function handler(request, response) {
       timestamp: new Date(),
       createdAt: new Date().toISOString()
     };
+
+    // Include averageWIP if provided
+    if (averageWIPNum !== null) {
+      gameRunData.averageWIP = averageWIPNum;
+    }
 
     // Save to Firestore
     const docRef = await db.collection('gameruns').add(gameRunData);

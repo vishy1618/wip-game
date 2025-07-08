@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import './ResultsModal.css';
 
-const ResultsModal = ({ completedOrders, onRestart, gameType }) => {
+const ResultsModal = ({ completedOrders, onRestart, gameType, wipSamples }) => {
   const [apiStatus, setApiStatus] = useState({ loading: false, success: null, error: null });
   const [hasCalledApi, setHasCalledApi] = useState(false);
   const results = useMemo(() => {
@@ -17,17 +17,29 @@ const ResultsModal = ({ completedOrders, onRestart, gameType }) => {
 
     const averageTime = orderTimes.reduce((sum, order) => sum + order.time, 0) / orderTimes.length;
 
+    // Calculate average WIP if samples are provided
+    let averageWIP = 0;
+    if (wipSamples && wipSamples.length > 0) {
+      // Only consider samples where WIP > 0 (actual work is happening)
+      const activeSamples = wipSamples.filter(sample => sample.wip > 0);
+      if (activeSamples.length > 0) {
+        const totalWIP = activeSamples.reduce((sum, sample) => sum + sample.wip, 0);
+        averageWIP = totalWIP / activeSamples.length;
+      }
+    }
+
     return {
       totalTime: Math.round(totalTime / 1000),
       orderTimes: orderTimes.map(order => ({
         ...order,
         time: Math.round(order.time / 1000)
       })),
-      averageTime: Math.round(averageTime / 1000)
+      averageTime: Math.round(averageTime / 1000),
+      averageWIP: Math.round(averageWIP * 100) / 100 // Round to 2 decimal places
     };
-  }, [completedOrders]);
+  }, [completedOrders, wipSamples]);
 
-  const saveGameResults = async (totalTime, averageTime, gameType) => {
+  const saveGameResults = async (totalTime, averageTime, gameType, averageWIP) => {
     setApiStatus({ loading: true, success: null, error: null });
     
     try {
@@ -39,7 +51,8 @@ const ResultsModal = ({ completedOrders, onRestart, gameType }) => {
         body: JSON.stringify({
           totalTime,
           averageTime,
-          gameType
+          gameType,
+          averageWIP
         })
       });
 
@@ -61,7 +74,7 @@ const ResultsModal = ({ completedOrders, onRestart, gameType }) => {
   useEffect(() => {
     if (results && gameType && !hasCalledApi) {
       setHasCalledApi(true);
-      saveGameResults(results.totalTime, results.averageTime, gameType);
+      saveGameResults(results.totalTime, results.averageTime, gameType, results.averageWIP);
     }
   }, [results, gameType, hasCalledApi]);
 
@@ -99,6 +112,16 @@ const ResultsModal = ({ completedOrders, onRestart, gameType }) => {
             <h3>Average Time per Pizza</h3>
             <div className="time-display">{formatTime(results.averageTime)}</div>
           </div>
+
+          {results.averageWIP !== undefined && (
+            <div className="wip-stat">
+              <h3>Average Work in Progress (WIP)</h3>
+              <div className="wip-display">{results.averageWIP}</div>
+              <p className="wip-description">
+                Average number of pizzas being worked on simultaneously when active
+              </p>
+            </div>
+          )}
           
           <div className="api-status">
             {apiStatus.loading && <p>💾 Saving results...</p>}
