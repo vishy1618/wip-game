@@ -33,129 +33,61 @@
   font-size: 2.5em;
 }
 
-.total-games {
-  text-align: center;
-  margin-bottom: 30px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.total-games h2 {
-  margin: 0;
-  font-size: 1.8em;
-}
-
-.stats-grid {
+.stats-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 30px;
   margin-bottom: 30px;
 }
 
 @media (max-width: 768px) {
-  .stats-grid {
+  .stats-container {
     grid-template-columns: 1fr;
   }
 }
 
-.game-type-stats {
+.stat-card {
   background: white;
-  border-radius: 10px;
-  padding: 25px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-top: 4px solid;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-top: 4px solid #667eea;
 }
 
-.multitask-stats {
-  border-top-color: #4CAF50;
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
 }
 
-.singletask-stats {
-  border-top-color: #2196F3;
-}
-
-.game-type-stats h3 {
+.stat-card h2 {
   margin-top: 0;
   margin-bottom: 20px;
-  font-size: 1.5em;
+  font-size: 1.3em;
   color: #333;
-  text-align: center;
-}
-
-.stat-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.stat-item:last-child {
-  border-bottom: none;
-}
-
-.stat-label {
-  font-weight: 500;
-  color: #666;
+  font-weight: 600;
 }
 
 .stat-value {
   font-weight: bold;
-  color: #333;
-  font-size: 1.1em;
+  color: #667eea;
+  margin-bottom: 10px;
 }
 
-.comparison-section {
-  background: white;
-  border-radius: 10px;
-  padding: 25px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-top: 4px solid #FF9800;
+.stat-value.large {
+  font-size: 3em;
+  display: block;
 }
 
-.comparison-section h3 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 1.5em;
-  color: #333;
-  text-align: center;
-}
-
-.comparison-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.comparison-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  background: #f9f9f9;
-  border-radius: 8px;
-}
-
-.comparison-label {
-  font-weight: 500;
+.stat-description {
   color: #666;
+  font-size: 0.9em;
+  margin-top: 10px;
+  font-style: italic;
 }
 
-.comparison-value {
-  font-weight: bold;
-  font-size: 1.1em;
-}
 
-.faster {
-  color: #4CAF50;
-}
-
-.slower {
-  color: #f44336;
-}
 
 .loading, .error, .no-data, .no-games {
   text-align: center;
@@ -191,6 +123,25 @@
 }
 
 .no-games p {
-  margin: 0;
+  margin: 0 0 20px 0;
   color: #888;
+}
+
+.no-games .play-button {
+  display: inline-block;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  color: white;
+  text-decoration: none;
+  padding: 12px 30px;
+  border-radius: 20px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.no-games .play-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  text-decoration: none;
+  color: white;
 }

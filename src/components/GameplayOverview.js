@@ -57,20 +57,7 @@ const GameplayOverview = () => {
     return `${remainingSeconds}s`;
   };
 
-  const formatPercentage = (percentage, type) => {
-    if (!percentage || percentage === 0) return 'No comparison available';
-    
-    const absPercentage = Math.abs(percentage);
-    const isFaster = percentage > 0;
-    
-    return (
-      <span className={isFaster ? 'faster' : 'slower'}>
-        {isFaster ? 'Multitask is ' : 'Singletask is '}
-        {absPercentage.toFixed(1)}% faster
-        {type === 'total' ? ' overall' : ' per pizza'}
-      </span>
-    );
-  };
+
 
   if (loading) {
     return (
@@ -101,75 +88,49 @@ const GameplayOverview = () => {
     );
   }
 
-  const { multitask, singletask, comparison } = stats;
-  const totalGames = multitask.count + singletask.count;
+  const { wip } = stats;
+  const totalGames = wip ? wip.count : 0;
 
   return (
     <div className="gameplay-overview">
       <Link to="/" className="home-link">← Back to Home</Link>
       <h1>Gameplay Overview</h1>
       
-      <div className="total-games">
-        <h2>Total Games Played: {totalGames}</h2>
-      </div>
-
-      <div className="stats-grid">
-        <div className="game-type-stats multitask-stats">
-          <h3>Multitask Mode</h3>
-          <div className="stat-item">
-            <span className="stat-label">Games Played:</span>
-            <span className="stat-value">{multitask.count}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Average Total Time:</span>
-            <span className="stat-value">{formatTime(multitask.avgTotalTime)}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Average Time Per Pizza:</span>
-            <span className="stat-value">{formatTime(multitask.avgAverageTime)}</span>
-          </div>
+      <div className="stats-container">
+        <div className="stat-card">
+          <h2>Total Games Played</h2>
+          <div className="stat-value large">{totalGames}</div>
         </div>
 
-        <div className="game-type-stats singletask-stats">
-          <h3>Singletask Mode</h3>
-          <div className="stat-item">
-            <span className="stat-label">Games Played:</span>
-            <span className="stat-value">{singletask.count}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Average Total Time:</span>
-            <span className="stat-value">{formatTime(singletask.avgTotalTime)}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Average Time Per Pizza:</span>
-            <span className="stat-value">{formatTime(singletask.avgAverageTime)}</span>
-          </div>
-        </div>
-      </div>
-
-      {(multitask.count > 0 && singletask.count > 0) && (
-        <div className="comparison-section">
-          <h3>Mode Comparison</h3>
-          <div className="comparison-stats">
-            <div className="comparison-item">
-              <span className="comparison-label">Total Time Performance:</span>
-              <span className="comparison-value">
-                {formatPercentage(comparison.totalTimePercentage, 'total')}
-              </span>
+        {totalGames > 0 && (
+          <>
+            <div className="stat-card">
+              <h2>Average Total Time</h2>
+              <div className="stat-value large">{formatTime(wip.avgTotalTime)}</div>
+              <div className="stat-description">Time to complete all 5 pizzas</div>
             </div>
-            <div className="comparison-item">
-              <span className="comparison-label">Per Pizza Performance:</span>
-              <span className="comparison-value">
-                {formatPercentage(comparison.averageTimePercentage, 'pizza')}
-              </span>
+
+            <div className="stat-card">
+              <h2>Average Time Per Pizza</h2>
+              <div className="stat-value large">{formatTime(wip.avgAverageTime)}</div>
+              <div className="stat-description">Time to complete each pizza</div>
             </div>
-          </div>
-        </div>
-      )}
+
+            {wip.avgWIP !== undefined && (
+              <div className="stat-card">
+                <h2>Average Work in Progress</h2>
+                <div className="stat-value large">{wip.avgWIP}</div>
+                <div className="stat-description">Average pizzas worked on simultaneously</div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       {totalGames === 0 && (
         <div className="no-games">
           <p>No games have been played yet. Start playing to see statistics!</p>
+          <Link to="/game" className="play-button">Play Your First Game</Link>
         </div>
       )}
     </div>
