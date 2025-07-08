@@ -35,6 +35,18 @@ const Home = () => {
               View Stats
             </Link>
           </div>
+          
+          <div className="game-card">
+            <div className="game-icon">📈</div>
+            <h2>WIP Analysis</h2>
+            <p>
+              Analyze the correlation between Work in Progress (WIP) and completion times.
+              Discover insights about multitasking efficiency and optimal workflow patterns!
+            </p>
+            <Link to="/wip-analysis" className="play-button">
+              View Analysis
+            </Link>
+          </div>
         </div>
       </main>
     </div>
