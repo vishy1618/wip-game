@@ -108,9 +108,10 @@
 }
 
 .wip-order-item.neglected.selected {
-  border-color: #dc3545;
+  border-color: #007bff;
   background-color: #f5c6cb;
-  box-shadow: 0 2px 8px rgba(220,53,69,0.4);
+  box-shadow: 0 2px 8px rgba(0,123,255,0.6);
+  border-width: 3px;
 }
 
 .wip-order-header {
