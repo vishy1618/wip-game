@@ -40,6 +40,7 @@ const generateRandomOrder = (orderId) => {
     addedIngredients: [],
     addedIngredientPositions: {}, // Store positions for each ingredient
     startTime: Date.now(),
+    lastWorkedOn: Date.now(), // Track when player last worked on this order
     completionTime: null,
     isCompleted: false
   };
@@ -113,7 +114,7 @@ function WIPGame() {
     return () => clearInterval(interval);
   }, [gameStarted, gameCompleted, orders]);
 
-  // Check for neglected orders (orders without any ingredients after 5 seconds)
+  // Check for neglected orders (orders not worked on for 5+ seconds)
   useEffect(() => {
     if (!gameStarted || gameCompleted) return;
 
@@ -122,9 +123,9 @@ function WIPGame() {
       const newNeglectedOrders = new Set();
 
       orders.forEach(order => {
-        if (!order.isCompleted && order.addedIngredients.length === 0) {
-          const timeSinceCreated = currentTime - order.startTime;
-          if (timeSinceCreated > 5000) { // 5 seconds
+        if (!order.isCompleted) {
+          const timeSinceLastWorked = currentTime - order.lastWorkedOn;
+          if (timeSinceLastWorked > 5000) { // 5 seconds
             newNeglectedOrders.add(order.id);
           }
         }
@@ -181,7 +182,8 @@ function WIPGame() {
             addedIngredientPositions: {
               ...order.addedIngredientPositions,
               [ingredient]: positions
-            }
+            },
+            lastWorkedOn: Date.now() // Update last worked on time
           };
         }
         return order;
