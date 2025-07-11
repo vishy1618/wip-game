@@ -55,6 +55,7 @@ function WIPGame() {
   const [errorMessage, setErrorMessage] = useState('');
   const [gameStartTime, setGameStartTime] = useState(null);
   const [wipSamples, setWipSamples] = useState([]);
+  const [neglectedOrders, setNeglectedOrders] = useState(new Set());
 
   useEffect(() => {
     if (!gameStarted || gameCompleted || orderCount >= 5) return;
@@ -109,6 +110,30 @@ function WIPGame() {
     };
 
     const interval = setInterval(sampleWIP, 1000);
+    return () => clearInterval(interval);
+  }, [gameStarted, gameCompleted, orders]);
+
+  // Check for neglected orders (orders without any ingredients after 5 seconds)
+  useEffect(() => {
+    if (!gameStarted || gameCompleted) return;
+
+    const checkNeglectedOrders = () => {
+      const currentTime = Date.now();
+      const newNeglectedOrders = new Set();
+
+      orders.forEach(order => {
+        if (!order.isCompleted && order.addedIngredients.length === 0) {
+          const timeSinceCreated = currentTime - order.startTime;
+          if (timeSinceCreated > 5000) { // 5 seconds
+            newNeglectedOrders.add(order.id);
+          }
+        }
+      });
+
+      setNeglectedOrders(newNeglectedOrders);
+    };
+
+    const interval = setInterval(checkNeglectedOrders, 1000);
     return () => clearInterval(interval);
   }, [gameStarted, gameCompleted, orders]);
 
@@ -175,6 +200,7 @@ function WIPGame() {
     setSelectedOrderId(null);
     setErrorMessage('');
     setWipSamples([]);
+    setNeglectedOrders(new Set());
   };
 
   const resetGame = () => {
@@ -187,6 +213,7 @@ function WIPGame() {
     setErrorMessage('');
     setGameStartTime(null);
     setWipSamples([]);
+    setNeglectedOrders(new Set());
   };
 
   const formatTime = (seconds) => {
@@ -332,15 +359,18 @@ function WIPGame() {
               const completionPercentage = Math.round(
                 (order.addedIngredients.length / order.requiredIngredients.length) * 100
               );
+              const isNeglected = neglectedOrders.has(order.id);
               
               return (
                 <div
                   key={order.id}
-                  className={`wip-order-item ${selectedOrderId === order.id ? 'selected' : ''}`}
+                  className={`wip-order-item ${selectedOrderId === order.id ? 'selected' : ''} ${isNeglected ? 'neglected' : ''}`}
                   onClick={() => setSelectedOrderId(order.id)}
                 >
                   <div className="wip-order-header">
-                    <span className="wip-order-title">Order #{order.id}</span>
+                    <span className="wip-order-title">
+                      Order #{order.id} {isNeglected && '😠'}
+                    </span>
                     <span className="wip-order-timer">⏱️ {formatTime(elapsedTime)}</span>
                   </div>
                   <div className="wip-order-progress">
@@ -354,6 +384,7 @@ function WIPGame() {
                   </div>
                   <div className="wip-order-ingredients">
                     {order.requiredIngredients.length} ingredients needed
+                    {isNeglected && <div className="wip-order-demand">NEEDS ATTENTION!</div>}
                   </div>
                 </div>
               );

@@ -96,6 +96,23 @@
   box-shadow: 0 2px 8px rgba(0,123,255,0.2);
 }
 
+.wip-order-item.neglected {
+  border-color: #dc3545;
+  background-color: #f8d7da;
+  animation: pulse-red 2s infinite;
+}
+
+.wip-order-item.neglected:hover {
+  border-color: #c82333;
+  box-shadow: 0 2px 4px rgba(220,53,69,0.3);
+}
+
+.wip-order-item.neglected.selected {
+  border-color: #dc3545;
+  background-color: #f5c6cb;
+  box-shadow: 0 2px 8px rgba(220,53,69,0.4);
+}
+
 .wip-order-header {
   display: flex;
   justify-content: space-between;
@@ -134,6 +151,14 @@
 .wip-order-ingredients {
   font-size: 0.85rem;
   color: #666;
+}
+
+.wip-order-demand {
+  font-size: 0.75rem;
+  color: #dc3545;
+  font-weight: bold;
+  margin-top: 0.25rem;
+  animation: blink 1s infinite;
 }
 
 /* Center Area - Pizza Display */
@@ -326,6 +351,26 @@
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
+}
+
+@keyframes pulse-red {
+  0% { 
+    background-color: #f8d7da;
+    box-shadow: 0 2px 4px rgba(220,53,69,0.2);
+  }
+  50% { 
+    background-color: #f5c6cb;
+    box-shadow: 0 4px 8px rgba(220,53,69,0.4);
+  }
+  100% { 
+    background-color: #f8d7da;
+    box-shadow: 0 2px 4px rgba(220,53,69,0.2);
+  }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
 }
 
 /* Debug Info */
