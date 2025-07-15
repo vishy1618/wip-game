@@ -34,6 +34,9 @@ export default async function handler(request, response) {
   }
 
   if (request.method === 'GET') {
+    // Set cache headers
+    response.setHeader('Cache-Control', 'max-age=0, s-maxage=5, stale-while-revalidate');
+    
     try {
       // Fetch all game runs
       const snapshot = await db.collection('gameruns').get();
